@@ -1,16 +1,60 @@
-# almaty_offline_map
+# 🏔️ Almaty Offline Guide
 
-A new Flutter project.
+[![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
+[![Repo](https://img.shields.io/badge/Repository-Link-green?style=for-the-badge&logo=github)](https://github.com/Shagdarovpro/AlmatyMap.git)
 
-## Getting Started
+Мобильное приложение для навигации по Алматы с полноценным **Offline-first** подходом. Позволяет пользователям искать достопримечательности и пользоваться картой без доступа к сети (в горах, в самолете или при отсутствии роуминга).
 
-This project is a starting point for a Flutter application.
+## 🚀 Ссылка на проект
+**GitHub Repository:** [https://github.com/Shagdarovpro/AlmatyMap.git](https://github.com/Shagdarovpro/AlmatyMap.git)
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🌟 Ключевые возможности
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+* **Offline Tile Caching:** Автоматическое и ручное сохранение фрагментов карты (тайлов) в локальную базу данных.
+* **Bulk Download:** Возможность пакетного скачивания выбранного региона (весь город Алматы) для полной автономности.
+* **Live Search:** Интерактивный поиск по списку достопримечательностей (Медеу, Шымбулак, Кок-Тобе и др.) с фильтрацией в реальном времени.
+* **Download Progress:** Визуальный индикатор прогресса загрузки (Progress Bar) с использованием реактивных потоков (Streams).
+* **Map Control:** Удобное управление камерой и перемещение к объектам при клике на карточки.
+
+## 🛠 Технический стек
+
+* **Maps:** `flutter_map` (OpenStreetMap).
+* **Storage:** `flutter_map_tile_caching` (на базе ObjectBox NoSQL) — для высокопроизводительного хранения тайлов.
+* **Data:** `latlong2` для работы с географическими координатами.
+* **UI:** Material 3, Stack layout для наложения слоев поиска и прогресса.
+
+## ⚙️ Архитектурные особенности
+
+1.  **Reactive State Management:** Состояние загрузки и прогресс-бара обновляется через `setState` на основе прослушивания `Stream` от загрузчика.
+2.  **Foreground Service:** Загрузка больших регионов оптимизирована для работы в фоне, чтобы процесс не прерывался системой.
+3.  **Search Logic:** Реализована эффективная фильтрация коллекций объектов "на лету" без лишних перерисовок карты.
+
+## 📦 Установка и запуск
+
+1.  Клонируйте репозиторий:
+    ```bash
+    git clone [https://github.com/Shagdarovpro/AlmatyMap.git](https://github.com/Shagdarovpro/AlmatyMap.git)
+    ```
+2.  Перейдите в папку проекта:
+    ```bash
+    cd AlmatyMap
+    ```
+3.  Установите зависимости:
+    ```bash
+    flutter pub get
+    ```
+4.  Запустите на эмуляторе или реальном устройстве:
+    ```bash
+    flutter run
+    ```
+
+## 📍 Дальнейшие планы (Roadmap)
+- [ ] Добавление маршрутов для трекинга в горах.
+- [ ] Определение текущего местоположения через GPS.
+- [ ] Темная тема для экономии заряда в походах.
+
+---
+Разработано Shagdarovpro как демонстрация работы с гео-данными и локальным хранением во Flutter.
