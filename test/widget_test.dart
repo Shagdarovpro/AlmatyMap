@@ -1,30 +1,98 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
-
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
+import 'package:almaty_offline_map/logic/map_provider.dart';
 
-import 'package:almaty_offline_map/main.dart';
+class MockMapProvider extends MapProvider {
+  bool _isMockDownloading = false;
+  @override
+  bool get isDownloading => _isMockDownloading;
+
+  @override
+  Future<void> downloadAlmatyRegion() async {
+    _isMockDownloading = true;
+    notifyListeners();
+  }
+}
+
+class TestMapWrapper extends StatelessWidget {
+  const TestMapWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<MapProvider>();
+    return Scaffold(
+      body: Column(
+        children: [
+          TextField(
+            key: const Key('searchField'),
+            onChanged: (v) => provider.updateSearchQuery(v),
+          ),
+          Expanded(
+            child: ListView(
+              children: provider.filteredLandmarks
+                  .map((l) => ListTile(title: Text(l.name)))
+                  .toList(),
+            ),
+          ),
+          if (provider.isDownloading) const LinearProgressIndicator(),
+        ],
+      ),
+    );
+  }
+}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const AlmatyMapApp());
+  group('MapProvider Logic & Widget Tests', () {
+    
+    test('MapProvider filter logic test', () {
+      final provider = MapProvider();
+      provider.updateSearchQuery('Арбат');
+      expect(provider.filteredLandmarks.length, 1);
+      expect(provider.filteredLandmarks.first.name, 'Арбат');
+    });
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    testWidgets('Search filters landmarks correctly in UI', (WidgetTester tester) async {
+      final provider = MapProvider();
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<MapProvider>.value(
+          value: provider,
+          child: const MaterialApp(home: TestMapWrapper()),
+        ),
+      );
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+      expect(find.text('Медеу'), findsOneWidget);
+
+      await tester.enterText(find.byKey(const Key('searchField')), 'Арбат');
+      await tester.pump(); 
+
+      // ИСПРАВЛЕНИЕ: Ищем текст "Арбат", который НЕ является частью TextField
+      // Ищем именно виджет типа ListTile, содержащий этот текст
+      expect(
+        find.descendant(
+          of: find.byType(ListTile), 
+          matching: find.text('Арбат')
+        ), 
+        findsOneWidget
+      );
+      
+      expect(find.text('Медеу'), findsNothing);
+    });
+
+    testWidgets('Download indicator appears', (WidgetTester tester) async {
+      final mock = MockMapProvider();
+      await tester.pumpWidget(
+        ChangeNotifierProvider<MapProvider>.value(
+          value: mock,
+          child: const MaterialApp(home: TestMapWrapper()),
+        ),
+      );
+
+      expect(find.byType(LinearProgressIndicator), findsNothing);
+      await mock.downloadAlmatyRegion();
+      await tester.pump();
+      expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    });
   });
 }
