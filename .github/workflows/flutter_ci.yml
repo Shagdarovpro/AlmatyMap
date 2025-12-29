@@ -1,0 +1,39 @@
+name: Flutter CI
+
+# Запускать проверку при каждом пуше в ветку main
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Выгружаем код из репозитория
+      - uses: actions/checkout@v4
+
+      # 2. Устанавливаем Java (нужна для Android инструментов)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Устанавливаем Flutter последней версии
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: 'stable'
+
+      # 4. Загружаем зависимости
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. Проверяем качество кода (статический анализ)
+      - name: Analyze code
+        run: flutter analyze
+
+      # 6. Запускаем твои тесты
+      - name: Run tests
+        run: flutter test
