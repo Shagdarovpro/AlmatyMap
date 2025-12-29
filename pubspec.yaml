@@ -21,6 +21,7 @@ dependencies:
   
   # Управление состоянием (State Management)
   provider: ^6.1.2
+  get_it: ^9.2.0
 
 dev_dependencies:
   flutter_test:
